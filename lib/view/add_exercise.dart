@@ -254,7 +254,8 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
         if (plantilla.trackPeso && _weightController.text.trim().isEmpty) {
           errors.add('Debes ingresar el peso.');
         }
-        if (plantilla.trackDistancia && _distanceController.text.trim().isEmpty) {
+        if (plantilla.trackDistancia &&
+            _distanceController.text.trim().isEmpty) {
           errors.add('Debes ingresar la distancia.');
         }
         if (plantilla.trackTiempo && _timeController.text.trim().isEmpty) {
@@ -271,20 +272,21 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       if (errors.isNotEmpty) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Errores en el formulario'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: errors.map((e) => Text('• $e')).toList(),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cerrar'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Errores en el formulario'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: errors.map((e) => Text('• $e')).toList(),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cerrar'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
         return;
       }

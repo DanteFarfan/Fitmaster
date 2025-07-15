@@ -107,11 +107,28 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
     final valorController = TextEditingController(
       text: medidaEditar != null ? medidaEditar.valor.toString() : '',
     );
-    String unidad = medidaEditar?.unidad ?? 'kg'; // default a kg
+    String unidad = medidaEditar?.unidad ?? 'kg';
 
     String? errorNombre;
     String? errorDescripcion;
     String? errorValor;
+
+    void mostrarErrorDialog(String mensaje) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text(mensaje),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            ),
+      );
+    }
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -172,7 +189,7 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
                                     if (value != null)
                                       setStateDialog(() => unidad = value);
                                   }
-                                  : null, // Deshabilita si es edición
+                                  : null,
                           decoration: const InputDecoration(
                             labelText: 'Unidad',
                           ),
@@ -249,58 +266,48 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
                           errorValor = null;
                         });
 
-                        bool hayError = false;
-
                         if (nombre.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorNombre =
-                                'El nombre es obligatorio y no puede ser solo espacios.';
-                          });
-                          hayError = true;
+                          mostrarErrorDialog(
+                            'El nombre es obligatorio y no puede ser solo espacios.',
+                          );
+                          return;
                         }
                         if (descripcion.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorDescripcion =
-                                'La descripción es obligatoria y no puede ser solo espacios.';
-                          });
-                          hayError = true;
+                          mostrarErrorDialog(
+                            'La descripción es obligatoria y no puede ser solo espacios.',
+                          );
+                          return;
                         }
                         if (valor.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorValor =
-                                'El valor es obligatorio y no puede ser solo espacios.';
-                          });
-                          hayError = true;
-                        } else {
-                          final valorNum = double.tryParse(valor.trim());
-                          if (valorNum == null) {
-                            setStateDialog(() {
-                              errorValor =
-                                  'El valor debe ser un número válido.';
-                            });
-                            hayError = true;
-                          } else if (valorNum <= 0) {
-                            setStateDialog(() {
-                              errorValor = 'El valor debe ser mayor a 0.';
-                            });
-                            hayError = true;
-                          }
+                          mostrarErrorDialog(
+                            'El valor es obligatorio y no puede ser solo espacios.',
+                          );
+                          return;
                         }
-                        if (!hayError && medidaEditar == null) {
+                        final valorNum = double.tryParse(valor.trim());
+                        if (valorNum == null) {
+                          mostrarErrorDialog(
+                            'El valor debe ser un número válido.',
+                          );
+                          return;
+                        }
+                        if (valorNum <= 0) {
+                          mostrarErrorDialog('El valor debe ser mayor a 0.');
+                          return;
+                        }
+                        if (medidaEditar == null) {
                           final existe = historialPeso.any(
                             (m) =>
                                 m.nombre.toLowerCase() ==
                                 nombre.trim().toLowerCase(),
                           );
                           if (existe) {
-                            setStateDialog(() {
-                              errorNombre =
-                                  'Ya existe una medida con ese nombre';
-                            });
-                            hayError = true;
+                            mostrarErrorDialog(
+                              'Ya existe una medida con ese nombre',
+                            );
+                            return;
                           }
                         }
-                        if (hayError) return;
                         Navigator.pop(context, true);
                       },
                       child: Text(
@@ -347,11 +354,28 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
     final valorController = TextEditingController(
       text: medidaEditar != null ? medidaEditar.valor.toString() : '',
     );
-    String unidad = medidaEditar?.unidad ?? 'cm'; // default a cm
+    String unidad = medidaEditar?.unidad ?? 'cm';
 
     String? errorNombre;
     String? errorDescripcion;
     String? errorValor;
+
+    void mostrarErrorDialog(String mensaje) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text(mensaje),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            ),
+      );
+    }
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -412,7 +436,7 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
                                     if (value != null)
                                       setStateDialog(() => unidad = value);
                                   }
-                                  : null, // Deshabilita si es edición
+                                  : null,
                           decoration: const InputDecoration(
                             labelText: 'Unidad',
                           ),
@@ -489,58 +513,48 @@ class _SeguimientoMedidasScreenState extends State<SeguimientoMedidasScreen> {
                           errorValor = null;
                         });
 
-                        bool hayError = false;
-
                         if (nombre.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorNombre =
-                                'El nombre es obligatorio y no puede ser solo espacios.';
-                          });
-                          hayError = true;
+                          mostrarErrorDialog(
+                            'El nombre es obligatorio y no puede ser solo espacios.',
+                          );
+                          return;
                         }
                         if (descripcion.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorDescripcion =
-                                'La descripción es obligatoria y no puede ser solo espacios.';
-                          });
-                          hayError = true;
+                          mostrarErrorDialog(
+                            'La descripción es obligatoria y no puede ser solo espacios.',
+                          );
+                          return;
                         }
                         if (valor.trim().isEmpty) {
-                          setStateDialog(() {
-                            errorValor =
-                                'El valor es obligatorio y no puede ser solo espacios.';
-                          });
-                          hayError = true;
-                        } else {
-                          final valorNum = double.tryParse(valor.trim());
-                          if (valorNum == null) {
-                            setStateDialog(() {
-                              errorValor =
-                                  'El valor debe ser un número válido.';
-                            });
-                            hayError = true;
-                          } else if (valorNum <= 0) {
-                            setStateDialog(() {
-                              errorValor = 'El valor debe ser mayor a 0.';
-                            });
-                            hayError = true;
-                          }
+                          mostrarErrorDialog(
+                            'El valor es obligatorio y no puede ser solo espacios.',
+                          );
+                          return;
                         }
-                        if (!hayError && medidaEditar == null) {
+                        final valorNum = double.tryParse(valor.trim());
+                        if (valorNum == null) {
+                          mostrarErrorDialog(
+                            'El valor debe ser un número válido.',
+                          );
+                          return;
+                        }
+                        if (valorNum <= 0) {
+                          mostrarErrorDialog('El valor debe ser mayor a 0.');
+                          return;
+                        }
+                        if (medidaEditar == null) {
                           final existe = historialLongitud.any(
                             (m) =>
                                 m.nombre.toLowerCase() ==
                                 nombre.trim().toLowerCase(),
                           );
                           if (existe) {
-                            setStateDialog(() {
-                              errorNombre =
-                                  'Ya existe una medida con ese nombre';
-                            });
-                            hayError = true;
+                            mostrarErrorDialog(
+                              'Ya existe una medida con ese nombre',
+                            );
+                            return;
                           }
                         }
-                        if (hayError) return;
                         Navigator.pop(context, true);
                       },
                       child: Text(
