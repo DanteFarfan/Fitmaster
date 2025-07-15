@@ -153,7 +153,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         // Usuario: mínimo 3 caracteres
                         if (nombre.length < 3) {
                           setStateDialog(() {
-                            errorUsuario = 'El usuario debe tener al menos 3 caracteres.';
+                            errorUsuario =
+                                'El usuario debe tener al menos 3 caracteres.';
                           });
                           return;
                         }
@@ -170,44 +171,56 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         final dominio = partes[1];
                         if (nombreUsuario.length < 6) {
                           setStateDialog(() {
-                            errorCorreo = 'El usuario debe tener al menos 6 caracteres antes de la @';
+                            errorCorreo =
+                                'El usuario debe tener al menos 6 caracteres antes de la @';
                           });
                           return;
                         }
-                        if (nombreUsuario.startsWith('.') || nombreUsuario.endsWith('.')) {
+                        if (nombreUsuario.startsWith('.') ||
+                            nombreUsuario.endsWith('.')) {
                           setStateDialog(() {
-                            errorCorreo = 'El usuario no puede empezar o terminar con punto';
+                            errorCorreo =
+                                'El usuario no puede empezar o terminar con punto';
                           });
                           return;
                         }
                         if (RegExp(r'[._-]{2,}').hasMatch(nombreUsuario)) {
                           setStateDialog(() {
-                            errorCorreo = 'No se permiten caracteres especiales consecutivos en el usuario';
+                            errorCorreo =
+                                'No se permiten caracteres especiales consecutivos en el usuario';
                           });
                           return;
                         }
-                        if (!RegExp(r'^[a-zA-Z0-9._-]+$').hasMatch(nombreUsuario)) {
+                        if (!RegExp(
+                          r'^[a-zA-Z0-9._-]+$',
+                        ).hasMatch(nombreUsuario)) {
                           setStateDialog(() {
-                            errorCorreo = 'Solo letras, números, guion bajo (_), punto (.) y guion (-) en el usuario';
+                            errorCorreo =
+                                'Solo letras, números, guion bajo (_), punto (.) y guion (-) en el usuario';
                           });
                           return;
                         }
-                        if (RegExp(r'[._-][^a-zA-Z0-9]').hasMatch(nombreUsuario)) {
+                        if (RegExp(
+                          r'[._-][^a-zA-Z0-9]',
+                        ).hasMatch(nombreUsuario)) {
                           setStateDialog(() {
-                            errorCorreo = 'Caracteres especiales deben ir seguidos de letra o número en el usuario';
+                            errorCorreo =
+                                'Caracteres especiales deben ir seguidos de letra o número en el usuario';
                           });
                           return;
                         }
                         final dominioPartes = dominio.split('.');
                         if (dominioPartes.length < 2) {
                           setStateDialog(() {
-                            errorCorreo = 'El dominio debe tener al menos un punto';
+                            errorCorreo =
+                                'El dominio debe tener al menos un punto';
                           });
                           return;
                         }
                         if (dominioPartes.any((parte) => parte.isEmpty)) {
                           setStateDialog(() {
-                            errorCorreo = 'El dominio no puede tener partes vacías';
+                            errorCorreo =
+                                'El dominio no puede tener partes vacías';
                           });
                           return;
                         }
@@ -218,13 +231,15 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                               parte.endsWith('-'),
                         )) {
                           setStateDialog(() {
-                            errorCorreo = 'El dominio solo permite letras, números y guiones (no al inicio/fin)';
+                            errorCorreo =
+                                'El dominio solo permite letras, números y guiones (no al inicio/fin)';
                           });
                           return;
                         }
                         if (dominioPartes.last.length < 2) {
                           setStateDialog(() {
-                            errorCorreo = 'El dominio debe terminar con al menos 2 letras';
+                            errorCorreo =
+                                'El dominio debe terminar con al menos 2 letras';
                           });
                           return;
                         }
@@ -235,7 +250,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           if (_esFechaISO(nacimiento)) {
                             fechaNac = DateTime.parse(nacimiento);
                           } else {
-                            fechaNac = DateFormat('dd/MM/yyyy').parseStrict(nacimiento);
+                            fechaNac = DateFormat(
+                              'dd/MM/yyyy',
+                            ).parseStrict(nacimiento);
                           }
                         } catch (_) {
                           setStateDialog(() {
@@ -246,40 +263,47 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         final hoy = DateTime.now();
                         int edad = hoy.year - fechaNac.year;
                         if (hoy.month < fechaNac.month ||
-                            (hoy.month == fechaNac.month && hoy.day < fechaNac.day)) {
+                            (hoy.month == fechaNac.month &&
+                                hoy.day < fechaNac.day)) {
                           edad--;
                         }
                         if (edad < 3 || edad > 120) {
                           setStateDialog(() {
-                            errorNacimiento = 'La edad debe ser entre 3 y 120 años.';
+                            errorNacimiento =
+                                'La edad debe ser entre 3 y 120 años.';
                           });
                           return;
                         }
 
                         // Contraseña (si se cambia)
                         if (cambiarContrasena) {
-                          if (contrasenaActualController.text != _usuario.password) {
+                          if (contrasenaActualController.text !=
+                              _usuario.password) {
                             setStateDialog(() {
-                              errorContrasena = 'La contraseña actual es incorrecta';
+                              errorContrasena =
+                                  'La contraseña actual es incorrecta';
                             });
                             return;
                           }
                           final nueva = contrasenaNuevaController.text;
                           if (nueva.length < 4) {
                             setStateDialog(() {
-                              errorContrasena = 'La nueva contraseña debe tener al menos 4 caracteres.';
+                              errorContrasena =
+                                  'La nueva contraseña debe tener al menos 4 caracteres.';
                             });
                             return;
                           }
                           if (nueva.contains(' ')) {
                             setStateDialog(() {
-                              errorContrasena = 'La nueva contraseña no puede contener espacios.';
+                              errorContrasena =
+                                  'La nueva contraseña no puede contener espacios.';
                             });
                             return;
                           }
                           if (nueva.trim().isEmpty) {
                             setStateDialog(() {
-                              errorContrasena = 'La nueva contraseña no puede estar vacía.';
+                              errorContrasena =
+                                  'La nueva contraseña no puede estar vacía.';
                             });
                             return;
                           }
