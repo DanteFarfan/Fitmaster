@@ -178,9 +178,15 @@ class _PlanNutricionScreenState extends State<PlanNutricionScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Ingrese su peso';
                       }
+                      if (value.trim().isEmpty) {
+                        return 'El peso no puede estar vacío ni ser solo espacios.';
+                      }
                       final num? val = num.tryParse(value);
-                      if (val == null || val <= 0) {
-                        return 'El peso debe ser mayor a 0';
+                      if (val == null) {
+                        return 'El peso debe ser un número válido.';
+                      }
+                      if (val <= 0) {
+                        return 'El peso debe ser mayor a 0.';
                       }
                       return null;
                     },
@@ -197,9 +203,15 @@ class _PlanNutricionScreenState extends State<PlanNutricionScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Ingrese su altura';
                       }
+                      if (value.trim().isEmpty) {
+                        return 'La altura no puede estar vacía ni ser solo espacios.';
+                      }
                       final num? val = num.tryParse(value);
-                      if (val == null || val <= 0) {
-                        return 'La altura debe ser mayor a 0';
+                      if (val == null) {
+                        return 'La altura debe ser un número válido.';
+                      }
+                      if (val <= 0) {
+                        return 'La altura debe ser mayor a 0.';
                       }
                       return null;
                     },
@@ -213,9 +225,15 @@ class _PlanNutricionScreenState extends State<PlanNutricionScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Ingrese su edad';
                       }
+                      if (value.trim().isEmpty) {
+                        return 'La edad no puede estar vacía ni ser solo espacios.';
+                      }
                       final num? val = num.tryParse(value);
-                      if (val == null || val <= 0) {
-                        return 'La edad debe ser mayor a 0';
+                      if (val == null) {
+                        return 'La edad debe ser un número válido.';
+                      }
+                      if (val <= 0) {
+                        return 'La edad debe ser mayor a 0.';
                       }
                       return null;
                     },

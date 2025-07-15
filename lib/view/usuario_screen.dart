@@ -146,11 +146,18 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           errorContrasena = null;
                         });
 
-                        final nombre = nombreController.text.trim();
-                        final correo = correoController.text.trim();
-                        final nacimiento = nacimientoController.text.trim();
+                        final nombre = nombreController.text;
+                        final correo = correoController.text;
+                        final nacimiento = nacimientoController.text;
 
-                        // Usuario: mínimo 3 caracteres
+                        // Usuario: mínimo 3 caracteres y no solo espacios
+                        if (nombre.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorUsuario =
+                                'El usuario no puede estar vacío ni tener solo espacios.';
+                          });
+                          return;
+                        }
                         if (nombre.length < 3) {
                           setStateDialog(() {
                             errorUsuario =
@@ -159,7 +166,20 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           return;
                         }
 
-                        // Correo: validación similar a register_screen
+                        // Correo: no vacío, sin solo espacios, validación completa
+                        if (correo.isEmpty) {
+                          setStateDialog(() {
+                            errorCorreo = 'El correo no puede estar vacío.';
+                          });
+                          return;
+                        }
+                        if (correo.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorCorreo =
+                                'El correo no puede contener solo espacios.';
+                          });
+                          return;
+                        }
                         final partes = correo.split('@');
                         if (partes.length != 2) {
                           setStateDialog(() {
@@ -169,6 +189,23 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         }
                         final nombreUsuario = partes[0];
                         final dominio = partes[1];
+                        if (nombreUsuario.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorCorreo =
+<<<<<<< Updated upstream
+                                'El usuario debe tener al menos 6 caracteres antes de la @';
+                          });
+                          return;
+                        }
+                        if (nombreUsuario.startsWith('.') ||
+                            nombreUsuario.endsWith('.')) {
+                          setStateDialog(() {
+                            errorCorreo =
+=======
+                                'El usuario antes de la @ no puede estar vacío ni tener solo espacios.';
+                          });
+                          return;
+                        }
                         if (nombreUsuario.length < 6) {
                           setStateDialog(() {
                             errorCorreo =
@@ -180,6 +217,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             nombreUsuario.endsWith('.')) {
                           setStateDialog(() {
                             errorCorreo =
+>>>>>>> Stashed changes
                                 'El usuario no puede empezar o terminar con punto';
                           });
                           return;
@@ -206,6 +244,16 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           setStateDialog(() {
                             errorCorreo =
                                 'Caracteres especiales deben ir seguidos de letra o número en el usuario';
+<<<<<<< Updated upstream
+=======
+                          });
+                          return;
+                        }
+                        if (dominio.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorCorreo =
+                                'El dominio no puede estar vacío ni tener solo espacios.';
+>>>>>>> Stashed changes
                           });
                           return;
                         }
@@ -217,10 +265,16 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           });
                           return;
                         }
-                        if (dominioPartes.any((parte) => parte.isEmpty)) {
+                        if (dominioPartes.any(
+                          (parte) => parte.trim().isEmpty,
+                        )) {
                           setStateDialog(() {
                             errorCorreo =
+<<<<<<< Updated upstream
                                 'El dominio no puede tener partes vacías';
+=======
+                                'El dominio no puede tener partes vacías ni solo espacios.';
+>>>>>>> Stashed changes
                           });
                           return;
                         }
@@ -244,7 +298,21 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           return;
                         }
 
-                        // Fecha de nacimiento: formato y rango edad
+                        // Fecha de nacimiento: no vacía, formato y rango edad
+                        if (nacimiento.isEmpty) {
+                          setStateDialog(() {
+                            errorNacimiento =
+                                'La fecha de nacimiento no puede estar vacía.';
+                          });
+                          return;
+                        }
+                        if (nacimiento.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorNacimiento =
+                                'La fecha de nacimiento no puede contener solo espacios.';
+                          });
+                          return;
+                        }
                         DateTime? fechaNac;
                         try {
                           if (_esFechaISO(nacimiento)) {
@@ -256,7 +324,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           }
                         } catch (_) {
                           setStateDialog(() {
-                            errorNacimiento = 'Formato de fecha inválido';
+                            errorNacimiento =
+                                'Formato de fecha inválido. Usa dd/mm/aaaa';
                           });
                           return;
                         }
@@ -286,6 +355,34 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             return;
                           }
                           final nueva = contrasenaNuevaController.text;
+                          if (nueva.isEmpty) {
+                            setStateDialog(() {
+                              errorContrasena =
+<<<<<<< Updated upstream
+                                  'La nueva contraseña debe tener al menos 4 caracteres.';
+                            });
+                            return;
+                          }
+                          if (nueva.contains(' ')) {
+                            setStateDialog(() {
+                              errorContrasena =
+                                  'La nueva contraseña no puede contener espacios.';
+=======
+                                  'La nueva contraseña no puede estar vacía.';
+>>>>>>> Stashed changes
+                            });
+                            return;
+                          }
+                          if (nueva.trim().isEmpty) {
+                            setStateDialog(() {
+                              errorContrasena =
+<<<<<<< Updated upstream
+                                  'La nueva contraseña no puede estar vacía.';
+=======
+                                  'La nueva contraseña no puede contener solo espacios.';
+                            });
+                            return;
+                          }
                           if (nueva.length < 4) {
                             setStateDialog(() {
                               errorContrasena =
@@ -297,13 +394,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             setStateDialog(() {
                               errorContrasena =
                                   'La nueva contraseña no puede contener espacios.';
-                            });
-                            return;
-                          }
-                          if (nueva.trim().isEmpty) {
-                            setStateDialog(() {
-                              errorContrasena =
-                                  'La nueva contraseña no puede estar vacía.';
+>>>>>>> Stashed changes
                             });
                             return;
                           }

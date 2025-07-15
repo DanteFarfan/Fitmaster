@@ -388,7 +388,10 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
     }
   }
 
-  Future<void> _asociarPlantillaACategoria(PlantillaEjercicio plantilla) async {
+  Future<void> _asociarPlantillaACategoria(
+    PlantillaEjercicio plantilla, {
+    Categoria? categoria,
+  }) async {
     final usuario = await DBHelper.getUsuarioActivo();
     if (usuario == null) {
       if (mounted) {
@@ -462,62 +465,65 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
                             categoriaSeleccionada ??
                             (nombreCat.isNotEmpty ? nombreCat : null);
 
-                        if (nombreFinal == null || nombreFinal.isEmpty) {
-                          setStateDialog(() {
-                            errorCategoria =
-                                'Debes seleccionar o escribir un nombre válido';
-                          });
-                          return;
-                        }
-                        // Validar duplicados solo si es nueva
-                        if (_categorias.any(
-                          (c) =>
-                              c.nombre.toLowerCase() ==
-                              nombreFinal!.toLowerCase(),
-                        )) {
-                          if (categoriaSeleccionada == null) {
+                        Categoria? categoriaToUse = categoria;
+
+                        if (categoriaToUse == null) {
+                          if (nombreFinal == null || nombreFinal.isEmpty) {
                             setStateDialog(() {
                               errorCategoria =
-                                  'Ya existe una categoría con ese nombre';
+                                  'Debes seleccionar o escribir un nombre válido';
                             });
                             return;
                           }
-                        }
-                        // Si es nueva, la creamos
-                        Categoria? categoria;
-                        if (_categorias.any(
-                          (c) =>
-                              c.nombre.toLowerCase() ==
-                              nombreFinal!.toLowerCase(),
-                        )) {
-                          categoria = _categorias.firstWhere(
+                          // Validar duplicados solo si es nueva
+                          if (_categorias.any(
                             (c) =>
                                 c.nombre.toLowerCase() ==
                                 nombreFinal!.toLowerCase(),
-                          );
-                        } else {
-                          categoria = Categoria(
-                            idUsuario: usuario.id!,
-                            nombre: nombreFinal!,
-                          );
-                          await DBHelper.insertCategoria(categoria);
-                          await _cargarCategorias();
-                          categoria = _categorias.firstWhere(
+                          )) {
+                            if (categoriaSeleccionada == null) {
+                              setStateDialog(() {
+                                errorCategoria =
+                                    'Ya existe una categoría con ese nombre';
+                              });
+                              return;
+                            }
+                          }
+                          // Si es nueva, la creamos
+                          if (_categorias.any(
                             (c) =>
                                 c.nombre.toLowerCase() ==
                                 nombreFinal!.toLowerCase(),
-                          );
+                          )) {
+                            categoriaToUse = _categorias.firstWhere(
+                              (c) =>
+                                  c.nombre.toLowerCase() ==
+                                  nombreFinal!.toLowerCase(),
+                            );
+                          } else {
+                            categoriaToUse = Categoria(
+                              idUsuario: usuario.id!,
+                              nombre: nombreFinal!,
+                            );
+                            await DBHelper.insertCategoria(categoriaToUse);
+                            await _cargarCategorias();
+                            categoriaToUse = _categorias.firstWhere(
+                              (c) =>
+                                  c.nombre.toLowerCase() ==
+                                  nombreFinal!.toLowerCase(),
+                            );
+                          }
                         }
                         // Asociar plantilla a la categoría
                         await DBHelper.asociarPlantillaACategoria(
                           plantilla.id!,
-                          categoria.id!,
+                          categoriaToUse!.id!,
                         );
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Plantilla asociada a la categoría "${categoria.nombre}"',
+                              'Plantilla asociada a la categoría "${categoriaToUse.nombre}"',
                             ),
                           ),
                         );
@@ -651,80 +657,275 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
       );
     }
 
-    showDialog(
+    String? errorNuevaCategoria;
+    final nuevaCategoriaController = TextEditingController();
+
+    await showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: const Text('Categorías y plantillas'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child:
-                  categorias.isEmpty
-                      ? const Text('No hay categorías registradas.')
-                      : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: categorias.length,
-                        itemBuilder: (context, i) {
-                          final cat = categorias[i];
-                          final plantillas = catPlantillas[cat.id!] ?? [];
-                          return ExpansionTile(
-                            title: Text(cat.nombre),
-                            children: [
-                              if (plantillas.isEmpty)
-                                const ListTile(
-                                  title: Text('Sin plantillas asignadas'),
-                                )
-                              else
-                                ...plantillas.map(
-                                  (p) => ListTile(
-                                    leading: const Icon(
-                                      Icons.list_alt,
-                                      color: Colors.deepPurple,
-                                    ),
-                                    title: Text(p.nombre),
-                                  ),
+          (context) => StatefulBuilder(
+            builder:
+                (context, setStateDialog) => AlertDialog(
+                  title: const Text('Categorías y plantillas'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Botón para crear nueva categoría SIEMPRE visible arriba del listado
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: nuevaCategoriaController,
+                                decoration: InputDecoration(
+                                  labelText: 'Nombre de la nueva categoría',
+                                  errorText: errorNuevaCategoria,
                                 ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      color: Colors.deepPurple,
-                                    ),
-                                    tooltip: 'Editar categoría',
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      _editarCategoria(cat);
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                    tooltip: 'Eliminar categoría',
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      _eliminarCategoria(cat);
-                                    },
-                                  ),
-                                ],
                               ),
-                            ],
-                          );
-                        },
-                      ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cerrar'),
-              ),
-            ],
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.add_circle,
+                                color: Colors.deepPurple,
+                              ),
+                              tooltip: 'Crear categoría',
+                              onPressed: () async {
+                                final nombre =
+                                    nuevaCategoriaController.text.trim();
+                                if (nombre.isEmpty) {
+                                  setStateDialog(() {
+                                    errorNuevaCategoria =
+                                        'El nombre no puede estar vacío';
+                                  });
+                                  return;
+                                }
+                                if (categorias.any(
+                                  (c) =>
+                                      c.nombre.toLowerCase() ==
+                                      nombre.toLowerCase(),
+                                )) {
+                                  setStateDialog(() {
+                                    errorNuevaCategoria =
+                                        'Ya existe una categoría con ese nombre';
+                                  });
+                                  return;
+                                }
+                                await DBHelper.insertCategoria(
+                                  Categoria(
+                                    idUsuario: usuario.id!,
+                                    nombre: nombre,
+                                  ),
+                                );
+                                nuevaCategoriaController.clear();
+                                setStateDialog(() {
+                                  errorNuevaCategoria = null;
+                                });
+                                Navigator.pop(context);
+                                _mostrarCategoriasConPlantillas();
+                              },
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 24),
+                        if (categorias.isEmpty)
+                          const Text('No hay categorías registradas.')
+                        else
+                          SizedBox(
+                            height: 250,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: categorias.length,
+                              itemBuilder: (context, i) {
+                                final cat = categorias[i];
+                                final plantillas = catPlantillas[cat.id!] ?? [];
+                                return ExpansionTile(
+                                  title: Text(cat.nombre),
+                                  children: [
+                                    if (plantillas.isEmpty)
+                                      const ListTile(
+                                        title: Text('Sin plantillas asignadas'),
+                                      )
+                                    else
+                                      ...plantillas.map(
+                                        (p) => ListTile(
+                                          leading: const Icon(
+                                            Icons.list_alt,
+                                            color: Colors.deepPurple,
+                                          ),
+                                          title: Text(p.nombre),
+                                        ),
+                                      ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Colors.deepPurple,
+                                          ),
+                                          tooltip: 'Editar categoría',
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            _editarCategoria(cat);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          tooltip: 'Eliminar categoría',
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            _eliminarCategoria(cat);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.add,
+                                            color: Colors.green,
+                                          ),
+                                          tooltip:
+                                              'Asignar plantilla a esta categoría',
+                                          onPressed: () async {
+                                            final disponibles =
+                                                _plantillas
+                                                    .where(
+                                                      (p) =>
+                                                          !(catPlantillas[cat
+                                                                      .id!]
+                                                                  ?.any(
+                                                                    (asig) =>
+                                                                        asig.id ==
+                                                                        p.id,
+                                                                  ) ??
+                                                              false),
+                                                    )
+                                                    .toList();
+
+                                            String? errorAsignar;
+
+                                            await showDialog(
+                                              context: context,
+                                              builder:
+                                                  (context) => StatefulBuilder(
+                                                    builder:
+                                                        (
+                                                          context,
+                                                          setStateDialog,
+                                                        ) => AlertDialog(
+                                                          title: const Text(
+                                                            'Selecciona una plantilla',
+                                                          ),
+                                                          content:
+                                                              disponibles
+                                                                      .isEmpty
+                                                                  ? Text(
+                                                                    'No hay plantillas disponibles para asignar a esta categoría.',
+                                                                    style: const TextStyle(
+                                                                      color:
+                                                                          Colors
+                                                                              .red,
+                                                                    ),
+                                                                  )
+                                                                  : SizedBox(
+                                                                    width:
+                                                                        double
+                                                                            .maxFinite,
+                                                                    child: Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        ...disponibles.map(
+                                                                          (
+                                                                            p,
+                                                                          ) => ListTile(
+                                                                            title: Text(
+                                                                              p.nombre,
+                                                                            ),
+                                                                            onTap: () async {
+                                                                              await DBHelper.asociarPlantillaACategoria(
+                                                                                p.id!,
+                                                                                cat.id!,
+                                                                              );
+                                                                              Navigator.pop(
+                                                                                context,
+                                                                              );
+                                                                              Navigator.pop(
+                                                                                context,
+                                                                              ); // Cierra el popup principal
+                                                                              _mostrarCategoriasConPlantillas();
+                                                                              ScaffoldMessenger.of(
+                                                                                this.context,
+                                                                              ).showSnackBar(
+                                                                                SnackBar(
+                                                                                  content: Text(
+                                                                                    'Plantilla asociada a la categoría "${cat.nombre}"',
+                                                                                  ),
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                        if (errorAsignar !=
+                                                                            null)
+                                                                          Padding(
+                                                                            padding: const EdgeInsets.only(
+                                                                              top:
+                                                                                  8,
+                                                                            ),
+                                                                            child: Text(
+                                                                              errorAsignar,
+                                                                              style: const TextStyle(
+                                                                                color:
+                                                                                    Colors.red,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed:
+                                                                  () =>
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      ),
+                                                              child: const Text(
+                                                                'Cerrar',
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                  ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cerrar'),
+                    ),
+                  ],
+                ),
           ),
     );
   }
+
+  // (Eliminado método duplicado _asociarPlantillaACategoria)
 
   @override
   Widget build(BuildContext context) {
@@ -750,7 +951,7 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
             onPressed: _mostrarCategoriasConPlantillas,
           ),
         ],
-      ),
+      ), // <-- Close AppBar here
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -812,7 +1013,7 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.save, color: Colors.white),
                   label: const Text(
-                    'Guardar plantilla',
+                    'Guardar Plantilla',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -824,49 +1025,6 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
                   onPressed: _guardarPlantilla,
                 ),
               ),
-              const SizedBox(height: 20),
-              // NUEVO BOTÓN PARA ASOCIAR CATEGORÍA
-              if (_plantillas.isNotEmpty)
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.category, color: Colors.white),
-                    label: const Text(
-                      'Asignar a categoría',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple.shade300,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () async {
-                      // Permite elegir la plantilla a asociar
-                      final plantilla = await showDialog<PlantillaEjercicio>(
-                        context: context,
-                        builder:
-                            (context) => SimpleDialog(
-                              title: const Text('Selecciona una plantilla'),
-                              children:
-                                  _plantillas
-                                      .map(
-                                        (p) => SimpleDialogOption(
-                                          child: Text(p.nombre),
-                                          onPressed:
-                                              () => Navigator.pop(context, p),
-                                        ),
-                                      )
-                                      .toList(),
-                            ),
-                      );
-                      if (plantilla != null) {
-                        await _asociarPlantillaACategoria(plantilla);
-                      }
-                    },
-                  ),
-                ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
