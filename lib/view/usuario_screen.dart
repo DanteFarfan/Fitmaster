@@ -3,6 +3,8 @@ import 'package:myapp/model/usuario.dart';
 import 'package:myapp/database/db_helper.dart';
 import 'package:intl/intl.dart';
 
+// Pantalla de usuario
+
 class UsuarioScreen extends StatefulWidget {
   final Usuario usuario;
 
