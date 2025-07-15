@@ -41,6 +41,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
     bool cambiarContrasena = false;
     String? errorContrasena;
+    String? errorUsuario;
+    String? errorCorreo;
+    String? errorNacimiento;
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -53,7 +56,23 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                     child: Column(
                       children: [
                         _campoTexto(nombreController, 'Nombre de usuario'),
+                        if (errorUsuario != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              errorUsuario!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
                         _campoTexto(correoController, 'Correo electrónico'),
+                        if (errorCorreo != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              errorCorreo!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
                         TextField(
                           controller: nacimientoController,
                           decoration: const InputDecoration(
@@ -61,6 +80,14 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             border: OutlineInputBorder(),
                           ),
                         ),
+                        if (errorNacimiento != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              errorNacimiento!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
                         const SizedBox(height: 16),
                         CheckboxListTile(
                           title: const Text('Cambiar contraseña'),
@@ -110,41 +137,154 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                       child: const Text('Cancelar'),
                     ),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Validaciones
+                        setStateDialog(() {
+                          errorUsuario = null;
+                          errorCorreo = null;
+                          errorNacimiento = null;
+                          errorContrasena = null;
+                        });
+
+                        final nombre = nombreController.text.trim();
+                        final correo = correoController.text.trim();
+                        final nacimiento = nacimientoController.text.trim();
+
+                        // Usuario: mínimo 3 caracteres
+                        if (nombre.length < 3) {
+                          setStateDialog(() {
+                            errorUsuario = 'El usuario debe tener al menos 3 caracteres.';
+                          });
+                          return;
+                        }
+
+                        // Correo: validación similar a register_screen
+                        final partes = correo.split('@');
+                        if (partes.length != 2) {
+                          setStateDialog(() {
+                            errorCorreo = 'Debe contener un solo "@"';
+                          });
+                          return;
+                        }
+                        final nombreUsuario = partes[0];
+                        final dominio = partes[1];
+                        if (nombreUsuario.length < 6) {
+                          setStateDialog(() {
+                            errorCorreo = 'El usuario debe tener al menos 6 caracteres antes de la @';
+                          });
+                          return;
+                        }
+                        if (nombreUsuario.startsWith('.') || nombreUsuario.endsWith('.')) {
+                          setStateDialog(() {
+                            errorCorreo = 'El usuario no puede empezar o terminar con punto';
+                          });
+                          return;
+                        }
+                        if (RegExp(r'[._-]{2,}').hasMatch(nombreUsuario)) {
+                          setStateDialog(() {
+                            errorCorreo = 'No se permiten caracteres especiales consecutivos en el usuario';
+                          });
+                          return;
+                        }
+                        if (!RegExp(r'^[a-zA-Z0-9._-]+$').hasMatch(nombreUsuario)) {
+                          setStateDialog(() {
+                            errorCorreo = 'Solo letras, números, guion bajo (_), punto (.) y guion (-) en el usuario';
+                          });
+                          return;
+                        }
+                        if (RegExp(r'[._-][^a-zA-Z0-9]').hasMatch(nombreUsuario)) {
+                          setStateDialog(() {
+                            errorCorreo = 'Caracteres especiales deben ir seguidos de letra o número en el usuario';
+                          });
+                          return;
+                        }
+                        final dominioPartes = dominio.split('.');
+                        if (dominioPartes.length < 2) {
+                          setStateDialog(() {
+                            errorCorreo = 'El dominio debe tener al menos un punto';
+                          });
+                          return;
+                        }
+                        if (dominioPartes.any((parte) => parte.isEmpty)) {
+                          setStateDialog(() {
+                            errorCorreo = 'El dominio no puede tener partes vacías';
+                          });
+                          return;
+                        }
+                        if (dominioPartes.any(
+                          (parte) =>
+                              !RegExp(r'^[a-zA-Z0-9-]+$').hasMatch(parte) ||
+                              parte.startsWith('-') ||
+                              parte.endsWith('-'),
+                        )) {
+                          setStateDialog(() {
+                            errorCorreo = 'El dominio solo permite letras, números y guiones (no al inicio/fin)';
+                          });
+                          return;
+                        }
+                        if (dominioPartes.last.length < 2) {
+                          setStateDialog(() {
+                            errorCorreo = 'El dominio debe terminar con al menos 2 letras';
+                          });
+                          return;
+                        }
+
+                        // Fecha de nacimiento: formato y rango edad
+                        DateTime? fechaNac;
+                        try {
+                          if (_esFechaISO(nacimiento)) {
+                            fechaNac = DateTime.parse(nacimiento);
+                          } else {
+                            fechaNac = DateFormat('dd/MM/yyyy').parseStrict(nacimiento);
+                          }
+                        } catch (_) {
+                          setStateDialog(() {
+                            errorNacimiento = 'Formato de fecha inválido';
+                          });
+                          return;
+                        }
+                        final hoy = DateTime.now();
+                        int edad = hoy.year - fechaNac.year;
+                        if (hoy.month < fechaNac.month ||
+                            (hoy.month == fechaNac.month && hoy.day < fechaNac.day)) {
+                          edad--;
+                        }
+                        if (edad < 3 || edad > 120) {
+                          setStateDialog(() {
+                            errorNacimiento = 'La edad debe ser entre 3 y 120 años.';
+                          });
+                          return;
+                        }
+
+                        // Contraseña (si se cambia)
                         if (cambiarContrasena) {
-                          // Validar contraseña anterior
-                          if (contrasenaActualController.text !=
-                              _usuario.password) {
+                          if (contrasenaActualController.text != _usuario.password) {
                             setStateDialog(() {
-                              errorContrasena =
-                                  'La contraseña actual es incorrecta';
+                              errorContrasena = 'La contraseña actual es incorrecta';
                             });
                             return;
                           }
-                          // Validar nueva contraseña
                           final nueva = contrasenaNuevaController.text;
                           if (nueva.length < 4) {
                             setStateDialog(() {
-                              errorContrasena =
-                                  'La nueva contraseña debe tener al menos 4 caracteres.';
+                              errorContrasena = 'La nueva contraseña debe tener al menos 4 caracteres.';
                             });
                             return;
                           }
                           if (nueva.contains(' ')) {
                             setStateDialog(() {
-                              errorContrasena =
-                                  'La nueva contraseña no puede contener espacios.';
+                              errorContrasena = 'La nueva contraseña no puede contener espacios.';
                             });
                             return;
                           }
                           if (nueva.trim().isEmpty) {
                             setStateDialog(() {
-                              errorContrasena =
-                                  'La nueva contraseña no puede estar vacía.';
+                              errorContrasena = 'La nueva contraseña no puede estar vacía.';
                             });
                             return;
                           }
                         }
+
                         Navigator.pop(context, true);
                       },
                       child: const Text('Guardar'),
