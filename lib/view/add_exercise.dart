@@ -491,7 +491,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.save, color: Colors.white),
                   label: const Text(
-                    'Guardar Ejercicio',
+                    'Guardar ejercicio',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(

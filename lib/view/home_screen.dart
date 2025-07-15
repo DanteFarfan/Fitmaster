@@ -276,7 +276,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _agregarOEditarNota({NotaDia? notaEditar}) async {
     final usuario = await DBHelper.getUsuarioActivo();
     if (usuario == null) {
-      // Muestra un error si no hay sesión iniciada
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -288,92 +287,119 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     final controller = TextEditingController(text: notaEditar?.texto ?? '');
+    String? errorTexto;
     final confirm = await showDialog<bool>(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: Text(notaEditar == null ? 'Agregar nota' : 'Editar nota'),
-            content: TextField(
-              controller: controller,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Escribe tu nota del día',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            actions: [
-              if (notaEditar != null)
-                TextButton(
-                  onPressed: () async {
-                    final confirmDelete = await showDialog<bool>(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Eliminar nota'),
-                            content: const Text(
-                              '¿Seguro que deseas eliminar esta nota? Esta acción no se puede deshacer.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancelar'),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Eliminar'),
-                              ),
-                            ],
-                          ),
-                    );
-                    if (confirmDelete == true) {
-                      await DBHelper.deleteNota(notaEditar.id!);
-                      Navigator.pop(context, false);
-                      await cargarNotasDelDia();
-                    }
-                  },
-                  child: const Text(
-                    'Eliminar',
-                    style: TextStyle(color: Colors.red),
+          (context) => StatefulBuilder(
+            builder:
+                (context, setStateDialog) => AlertDialog(
+                  title: Text(
+                    notaEditar == null ? 'Agregar nota' : 'Editar nota',
                   ),
-                ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (controller.text.trim().isEmpty) return;
-                  if (notaEditar == null) {
-                    await DBHelper.insertNota(
-                      NotaDia(
-                        idUsuario: usuario.id,
-                        texto: controller.text.trim(),
-                        fecha: DateTime(
-                          _fechaSeleccionada.year,
-                          _fechaSeleccionada.month,
-                          _fechaSeleccionada.day,
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: controller,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'Escribe tu nota del día',
+                          border: OutlineInputBorder(),
                         ),
                       ),
-                    );
-                  } else {
-                    await DBHelper.updateNota(
-                      NotaDia(
-                        id: notaEditar.id,
-                        idUsuario: usuario.id,
-                        texto: controller.text.trim(),
-                        fecha: notaEditar.fecha,
+                      if (errorTexto != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            errorTexto ?? '',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                    ],
+                  ),
+                  actions: [
+                    if (notaEditar != null)
+                      TextButton(
+                        onPressed: () async {
+                          final confirmDelete = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Eliminar nota'),
+                                  content: const Text(
+                                    '¿Seguro que deseas eliminar esta nota? Esta acción no se puede deshacer.',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('Eliminar'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          if (confirmDelete == true) {
+                            await DBHelper.deleteNota(notaEditar.id!);
+                            Navigator.pop(context, false);
+                            await cargarNotasDelDia();
+                          }
+                        },
+                        child: const Text(
+                          'Eliminar',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
-                    );
-                  }
-                  Navigator.pop(context, true);
-                  await cargarNotasDelDia();
-                },
-                child: const Text('Guardar'),
-              ),
-            ],
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (controller.text.trim().isEmpty) {
+                          setStateDialog(() {
+                            errorTexto =
+                                'La nota no puede estar vacía ni contener solo espacios.';
+                          });
+                          return;
+                        }
+                        if (notaEditar == null) {
+                          await DBHelper.insertNota(
+                            NotaDia(
+                              idUsuario: usuario.id,
+                              texto: controller.text.trim(),
+                              fecha: DateTime(
+                                _fechaSeleccionada.year,
+                                _fechaSeleccionada.month,
+                                _fechaSeleccionada.day,
+                              ),
+                            ),
+                          );
+                        } else {
+                          await DBHelper.updateNota(
+                            NotaDia(
+                              id: notaEditar.id,
+                              idUsuario: usuario.id,
+                              texto: controller.text.trim(),
+                              fecha: notaEditar.fecha,
+                            ),
+                          );
+                        }
+                        Navigator.pop(context, true);
+                        await cargarNotasDelDia();
+                      },
+                      child: const Text('Guardar'),
+                    ),
+                  ],
+                ),
           ),
     );
     if (confirm == true) {

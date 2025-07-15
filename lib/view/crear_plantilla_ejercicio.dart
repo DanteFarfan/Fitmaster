@@ -190,33 +190,68 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
                                       TextButton(
                                         onPressed: () async {
                                           // Confirmar eliminación
-                                          final confirm = await showDialog<bool>(
+                                          final confirm = await showDialog<
+                                            bool
+                                          >(
                                             context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: const Text('Eliminar plantilla'),
-                                              content: const Text('¿Seguro que deseas eliminar esta plantilla?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, false),
-                                                  child: const Text('Cancelar'),
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  title: const Text(
+                                                    'Eliminar plantilla',
+                                                  ),
+                                                  content: const Text(
+                                                    '¿Seguro que deseas eliminar esta plantilla?',
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                            false,
+                                                          ),
+                                                      child: const Text(
+                                                        'Cancelar',
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed:
+                                                          () => Navigator.pop(
+                                                            context,
+                                                            true,
+                                                          ),
+                                                      child: const Text(
+                                                        'Eliminar',
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, true),
-                                                  child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-                                                ),
-                                              ],
-                                            ),
                                           );
                                           if (confirm == true) {
-                                            await DBHelper.deletePlantilla(plantilla.id!);
+                                            await DBHelper.deletePlantilla(
+                                              plantilla.id!,
+                                            );
                                             await _cargarPlantillas();
-                                            Navigator.pop(context); // Cierra el dialog de edición
-                                            ScaffoldMessenger.of(this.context).showSnackBar(
-                                              const SnackBar(content: Text('Plantilla eliminada')),
+                                            Navigator.pop(
+                                              context,
+                                            ); // Cierra el dialog de edición
+                                            ScaffoldMessenger.of(
+                                              this.context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Plantilla eliminada',
+                                                ),
+                                              ),
                                             );
                                           }
                                         },
-                                        child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                        child: const Text(
+                                          'Eliminar',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
@@ -777,7 +812,7 @@ class _CrearPlantillaScreenState extends State<CrearPlantillaScreen> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.save, color: Colors.white),
                   label: const Text(
-                    'Guardar Plantilla',
+                    'Guardar plantilla',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(
