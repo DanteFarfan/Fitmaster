@@ -193,6 +193,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           setStateDialog(() {
                             errorCorreo =
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                 'El usuario debe tener al menos 6 caracteres antes de la @';
                           });
                           return;
@@ -209,6 +210,15 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         if (nombreUsuario.length < 6) {
                           setStateDialog(() {
                             errorCorreo =
+=======
+                                'El usuario antes de la @ no puede estar vacío ni tener solo espacios.';
+                          });
+                          return;
+                        }
+                        if (nombreUsuario.length < 6) {
+                          setStateDialog(() {
+                            errorCorreo =
+>>>>>>> Stashed changes
                                 'El usuario debe tener al menos 6 caracteres antes de la @';
                           });
                           return;
@@ -217,6 +227,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             nombreUsuario.endsWith('.')) {
                           setStateDialog(() {
                             errorCorreo =
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                                 'El usuario no puede empezar o terminar con punto';
                           });
@@ -245,7 +258,10 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             errorCorreo =
                                 'Caracteres especiales deben ir seguidos de letra o número en el usuario';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
                           });
                           return;
                         }
@@ -253,6 +269,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           setStateDialog(() {
                             errorCorreo =
                                 'El dominio no puede estar vacío ni tener solo espacios.';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                           });
                           return;
@@ -271,7 +290,11 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           setStateDialog(() {
                             errorCorreo =
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                 'El dominio no puede tener partes vacías';
+=======
+                                'El dominio no puede tener partes vacías ni solo espacios.';
+>>>>>>> Stashed changes
 =======
                                 'El dominio no puede tener partes vacías ni solo espacios.';
 >>>>>>> Stashed changes
@@ -359,6 +382,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             setStateDialog(() {
                               errorContrasena =
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                   'La nueva contraseña debe tener al menos 4 caracteres.';
                             });
                             return;
@@ -370,6 +394,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 =======
                                   'La nueva contraseña no puede estar vacía.';
 >>>>>>> Stashed changes
+=======
+                                  'La nueva contraseña no puede estar vacía.';
+>>>>>>> Stashed changes
                             });
                             return;
                           }
@@ -377,8 +404,11 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             setStateDialog(() {
                               errorContrasena =
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                   'La nueva contraseña no puede estar vacía.';
 =======
+=======
+>>>>>>> Stashed changes
                                   'La nueva contraseña no puede contener solo espacios.';
                             });
                             return;
@@ -394,6 +424,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                             setStateDialog(() {
                               errorContrasena =
                                   'La nueva contraseña no puede contener espacios.';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                             });
                             return;
