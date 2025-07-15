@@ -120,6 +120,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
             content: Text(
               'El nombre no puede estar vacío o solo contener espacios.',
             ),
+            backgroundColor: Colors.red,
           ),
         );
         return;
@@ -130,6 +131,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
             content: Text(
               'La descripción no puede estar vacía o solo contener espacios.',
             ),
+            backgroundColor: Colors.red,
           ),
         );
         return;
@@ -148,15 +150,15 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       final series = seriesTrim.isEmpty ? null : int.tryParse(seriesTrim);
       if (seriesRaw.isNotEmpty) {
         if (seriesTrim.isEmpty) {
-          errors.add('Series no puede ser solo espacios.');
+          errors.add('El campo "Series" no puede ser solo espacios.');
         } else if (empiezaConCero(seriesTrim)) {
-          errors.add('Series tiene un valor invalido.');
+          errors.add('El campo "Series" tiene un valor inválido.');
         } else if (series == null) {
-          errors.add('Series debe ser un número entero.');
+          errors.add('El campo "Series" debe ser un número entero.');
         } else if (series <= 0) {
-          errors.add('Series debe ser mayor que cero.');
+          errors.add('El campo "Series" debe ser mayor que cero.');
         } else if (series < 1) {
-          errors.add('Series debe ser al menos 1.');
+          errors.add('El campo "Series" debe ser al menos 1.');
         } else {
           algunDatoValido = true;
         }
@@ -168,15 +170,15 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       final reps = repsTrim.isEmpty ? null : int.tryParse(repsTrim);
       if (repsRaw.isNotEmpty) {
         if (repsTrim.isEmpty) {
-          errors.add('Repeticiones no puede ser solo espacios.');
+          errors.add('El campo "Repeticiones" no puede ser solo espacios.');
         } else if (empiezaConCero(repsTrim)) {
-          errors.add('Repeticiones tiene un valor invalido.');
+          errors.add('El campo "Repeticiones" tiene un valor inválido.');
         } else if (reps == null) {
-          errors.add('Repeticiones debe ser un número entero.');
+          errors.add('El campo "Repeticiones" debe ser un número entero.');
         } else if (reps <= 0) {
-          errors.add('Repeticiones debe ser mayor que cero.');
+          errors.add('El campo "Repeticiones" debe ser mayor que cero.');
         } else if (reps < 1) {
-          errors.add('Repeticiones debe ser al menos 1.');
+          errors.add('El campo "Repeticiones" debe ser al menos 1.');
         } else {
           algunDatoValido = true;
         }
@@ -188,13 +190,13 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       final peso = pesoTrim.isEmpty ? null : double.tryParse(pesoTrim);
       if (pesoRaw.isNotEmpty) {
         if (pesoTrim.isEmpty) {
-          errors.add('Peso no puede ser solo espacios.');
+          errors.add('El campo "Peso" no puede ser solo espacios.');
         } else if (empiezaConCero(pesoTrim)) {
-          errors.add('Peso tiene un valor invalido.');
+          errors.add('El campo "Peso" tiene un valor inválido.');
         } else if (peso == null) {
-          errors.add('Peso debe ser un número.');
+          errors.add('El campo "Peso" debe ser un número.');
         } else if (peso <= 0) {
-          errors.add('Peso debe ser mayor que cero.');
+          errors.add('El campo "Peso" debe ser mayor que cero.');
         } else {
           algunDatoValido = true;
         }
@@ -207,15 +209,15 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       final tiempoDouble = tiempo != null ? double.tryParse(tiempo) : null;
       if (tiempoRaw.isNotEmpty) {
         if (tiempoTrim.isEmpty) {
-          errors.add('Tiempo no puede ser solo espacios.');
+          errors.add('El campo "Tiempo" no puede ser solo espacios.');
         } else if (empiezaConCero(tiempoTrim)) {
-          errors.add('Tiempo tiene un valor invalido.');
+          errors.add('El campo "Tiempo" tiene un valor inválido.');
         } else if (tiempoDouble == null) {
-          errors.add('Tiempo debe ser un número.');
+          errors.add('El campo "Tiempo" debe ser un número.');
         } else if (tiempoDouble <= 0) {
-          errors.add('Tiempo debe ser mayor que cero.');
+          errors.add('El campo "Tiempo" debe ser mayor que cero.');
         } else if (tiempoDouble < 1) {
-          errors.add('Tiempo debe ser al menos 1 minuto.');
+          errors.add('El campo "Tiempo" debe ser al menos 1 minuto.');
         } else {
           algunDatoValido = true;
         }
@@ -228,15 +230,35 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
           distanciaTrim.isEmpty ? null : double.tryParse(distanciaTrim);
       if (distanciaRaw.isNotEmpty) {
         if (distanciaTrim.isEmpty) {
-          errors.add('Distancia no puede ser solo espacios.');
+          errors.add('El campo "Distancia" no puede ser solo espacios.');
         } else if (empiezaConCero(distanciaTrim)) {
-          errors.add('Distancia tiene un valor invalido.');
+          errors.add('El campo "Distancia" tiene un valor inválido.');
         } else if (distancia == null) {
-          errors.add('Distancia debe ser un número.');
+          errors.add('El campo "Distancia" debe ser un número.');
         } else if (distancia <= 0) {
-          errors.add('Distancia debe ser mayor que cero.');
+          errors.add('El campo "Distancia" debe ser mayor que cero.');
         } else {
           algunDatoValido = true;
+        }
+      }
+
+      // Validación adicional: si algún campo obligatorio de la plantilla está vacío
+      if (_usarPlantilla && _plantillaSeleccionada != null) {
+        final plantilla = _plantillaSeleccionada!;
+        if (plantilla.trackSeries && _seriesController.text.trim().isEmpty) {
+          errors.add('Debes ingresar el número de series.');
+        }
+        if (plantilla.trackReps && _repsController.text.trim().isEmpty) {
+          errors.add('Debes ingresar el número de repeticiones.');
+        }
+        if (plantilla.trackPeso && _weightController.text.trim().isEmpty) {
+          errors.add('Debes ingresar el peso.');
+        }
+        if (plantilla.trackDistancia && _distanceController.text.trim().isEmpty) {
+          errors.add('Debes ingresar la distancia.');
+        }
+        if (plantilla.trackTiempo && _timeController.text.trim().isEmpty) {
+          errors.add('Debes ingresar el tiempo.');
         }
       }
 
@@ -247,9 +269,23 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       }
 
       if (errors.isNotEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errors.join('\n'))));
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Errores en el formulario'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: errors.map((e) => Text('• $e')).toList(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          ),
+        );
         return;
       }
 
